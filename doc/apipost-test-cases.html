@@ -1,0 +1,887 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Apipost ????</title>
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --paper: #ffffff;
+      --ink: #1f2937;
+      --muted: #5f6b7a;
+      --line: #d8dee9;
+      --accent: #0f766e;
+      --accent-soft: #e6fffb;
+      --code-bg: #0f172a;
+      --code-ink: #e5e7eb;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: radial-gradient(circle at top left, #e0f2fe 0, transparent 34rem), var(--bg);
+      color: var(--ink);
+      font-family: "Microsoft YaHei", "Noto Sans SC", sans-serif;
+      line-height: 1.72;
+    }
+    main {
+      max-width: 1080px;
+      margin: 40px auto;
+      padding: 48px 56px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      box-shadow: 0 24px 70px rgba(15, 23, 42, .10);
+    }
+    h1 {
+      margin: 0 0 22px;
+      padding-bottom: 18px;
+      border-bottom: 3px solid var(--accent);
+      font-size: 34px;
+      letter-spacing: .02em;
+    }
+    h2 {
+      margin-top: 42px;
+      padding-left: 14px;
+      border-left: 5px solid var(--accent);
+      font-size: 25px;
+    }
+    h3 {
+      margin-top: 28px;
+      color: #134e4a;
+      font-size: 19px;
+    }
+    p, li { color: var(--ink); }
+    a { color: var(--accent); }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0 24px;
+      overflow: hidden;
+      border-radius: 12px;
+      font-size: 14px;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { background: var(--accent-soft); color: #134e4a; }
+    tr:nth-child(even) td { background: #fbfcfe; }
+    code {
+      padding: 2px 6px;
+      border-radius: 6px;
+      background: #eef2f7;
+      color: #0f3f3b;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: .92em;
+    }
+    pre {
+      margin: 14px 0 24px;
+      padding: 18px 20px;
+      overflow-x: auto;
+      border-radius: 14px;
+      background: var(--code-bg);
+      color: var(--code-ink);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.08);
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      color: inherit;
+      font-size: 13px;
+    }
+    blockquote {
+      margin: 18px 0;
+      padding: 12px 18px;
+      border-left: 5px solid var(--accent);
+      background: #f0fdfa;
+      color: var(--muted);
+    }
+    ul, ol { padding-left: 1.35em; }
+    @media (max-width: 760px) {
+      main { margin: 0; padding: 28px 18px; border-radius: 0; }
+      h1 { font-size: 28px; }
+      h2 { font-size: 22px; }
+      table { display: block; overflow-x: auto; white-space: nowrap; }
+    }
+    @media print {
+      body { background: #fff; }
+      main { margin: 0; padding: 0; border: 0; box-shadow: none; }
+      pre { white-space: pre-wrap; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+<h1 id="apipost">Apipost 测试用例</h1>
+<p>本文档用于在 Apipost 中测试当前项目已经实现的接口。</p>
+<h2 id="_1">环境变量</h2>
+<p>在 Apipost 的环境中新增变量：</p>
+<table>
+<thead>
+<tr>
+<th>变量名</th>
+<th>变量值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>baseUrl</code></td>
+<td><code>http://localhost:8080</code></td>
+</tr>
+</tbody>
+</table>
+<p>如果本地后端不是 8080 端口，请改成实际端口。</p>
+<h2 id="_2">公共请求头</h2>
+<p>大多数请求都可以带上：</p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>X-Request-Id</code></td>
+<td>任意请求链路 ID，例如 <code>REQ-APIPOST-001</code></td>
+</tr>
+</tbody>
+</table>
+<p>说明：</p>
+<ul>
+<li><code>X-Request-Id</code> 用于链路追踪。</li>
+<li>如果不传，后端会自动生成。</li>
+<li><code>form-data</code> 请求不要手动设置 <code>Content-Type</code>，Apipost 会自动生成 multipart boundary。</li>
+</ul>
+<h2 id="1">1. 系统探活</h2>
+<h3 id="_3">接口用途</h3>
+<p>用于检查后端服务是否已经启动成功，适合作为第一个测试接口。</p>
+<h3 id="apipost_1">Apipost 配置</h3>
+<ul>
+<li>Method：<code>GET</code></li>
+<li>URL：<code>{{baseUrl}}/api/system/ping</code></li>
+<li>Body：无</li>
+<li>Headers：</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>X-Request-Id</code></td>
+<td><code>REQ-APIPOST-001</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="_4">预期响应</h3>
+<pre><code class="language-json">{
+  &quot;code&quot;: 0,
+  &quot;message&quot;: &quot;success&quot;,
+  &quot;data&quot;: {
+    &quot;status&quot;: &quot;ok&quot;
+  },
+  &quot;requestId&quot;: &quot;REQ-APIPOST-001&quot;
+}
+</code></pre>
+<h2 id="2">2. 上传文件</h2>
+<h3 id="_5">接口用途</h3>
+<p>用于上传文件到 MinIO，并在 MySQL 的 <code>file_object</code> 表中保存文件元数据。</p>
+<p>可用于上传：</p>
+<ul>
+<li>模板文件</li>
+<li>参考文档</li>
+<li>生成报告文件</li>
+<li>预览文件</li>
+<li>其他业务文件</li>
+</ul>
+<p>当前阶段测试参考文档时，建议 <code>bizType</code> 使用 <code>REFERENCE</code>。</p>
+<h3 id="apipost_2">Apipost 配置</h3>
+<ul>
+<li>Method：<code>POST</code></li>
+<li>URL：<code>{{baseUrl}}/api/files</code></li>
+<li>Body 类型：<code>form-data</code></li>
+<li>Headers：</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>X-Request-Id</code></td>
+<td><code>REQ-APIPOST-FILE-001</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="body">Body 参数</h3>
+<table>
+<thead>
+<tr>
+<th>参数名</th>
+<th>Apipost 类型</th>
+<th>必填</th>
+<th>示例值</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>file</code></td>
+<td><code>File</code></td>
+<td>是</td>
+<td>选择本地文件，例如 <code>evaluation-material.pdf</code></td>
+<td>要上传的文件</td>
+</tr>
+<tr>
+<td><code>bizType</code></td>
+<td><code>Text</code></td>
+<td>是</td>
+<td><code>REFERENCE</code></td>
+<td>文件业务类型</td>
+</tr>
+<tr>
+<td><code>bizId</code></td>
+<td><code>Text</code></td>
+<td>否</td>
+<td><code>20001</code></td>
+<td>关联业务 ID</td>
+</tr>
+<tr>
+<td><code>objectName</code></td>
+<td><code>Text</code></td>
+<td>否</td>
+<td>先不填</td>
+<td>指定 MinIO 对象路径；不填由后端生成</td>
+</tr>
+</tbody>
+</table>
+<p>注意：</p>
+<ul>
+<li><code>file</code> 在 Apipost 中必须选择 <code>File</code> 类型。</li>
+<li>OpenAPI 中文件上传会显示为 <code>type: string</code>、<code>format: binary</code>，但在 Apipost 页面里仍然要选 <code>File</code>。</li>
+<li>第一次测试建议不要勾选 <code>objectName</code>，让后端自动生成路径。</li>
+</ul>
+<h3 id="_6">预期响应</h3>
+<pre><code class="language-json">{
+  &quot;code&quot;: 0,
+  &quot;message&quot;: &quot;success&quot;,
+  &quot;data&quot;: {
+    &quot;id&quot;: 1,
+    &quot;fileCode&quot;: &quot;F...&quot;,
+    &quot;bizType&quot;: &quot;REFERENCE&quot;,
+    &quot;bizId&quot;: 20001,
+    &quot;originalFilename&quot;: &quot;evaluation-material.pdf&quot;,
+    &quot;objectName&quot;: &quot;references/unknown/20001/F.../evaluation-material.pdf&quot;,
+    &quot;bucketName&quot;: &quot;report-generate&quot;,
+    &quot;contentType&quot;: &quot;application/pdf&quot;,
+    &quot;fileExt&quot;: &quot;pdf&quot;,
+    &quot;fileSize&quot;: 204800,
+    &quot;fileHash&quot;: &quot;sha256:...&quot;,
+    &quot;status&quot;: &quot;ACTIVE&quot;
+  },
+  &quot;requestId&quot;: &quot;REQ-APIPOST-FILE-001&quot;
+}
+</code></pre>
+<h3 id="_7">后置脚本</h3>
+<p>用于把返回的文件 ID 保存到 Apipost 环境变量，后续接口可以直接使用 <code>{{fileId}}</code>。</p>
+<pre><code class="language-javascript">const json = pm.response.json();
+if (json.code === 0 &amp;&amp; json.data) {
+  pm.environment.set(&quot;fileId&quot;, json.data.id);
+}
+</code></pre>
+<h2 id="3">3. 查询文件详情</h2>
+<h3 id="_8">接口用途</h3>
+<p>用于根据文件 ID 查询文件元数据，例如文件名、业务类型、MinIO 对象路径、文件大小、文件 hash、状态等。</p>
+<h3 id="apipost_3">Apipost 配置</h3>
+<ul>
+<li>Method：<code>GET</code></li>
+<li>URL：<code>{{baseUrl}}/api/files/{{fileId}}</code></li>
+<li>Body：无</li>
+<li>Headers：</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>X-Request-Id</code></td>
+<td><code>REQ-APIPOST-FILE-002</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="_9">预期响应</h3>
+<pre><code class="language-json">{
+  &quot;code&quot;: 0,
+  &quot;message&quot;: &quot;success&quot;,
+  &quot;data&quot;: {
+    &quot;id&quot;: 1,
+    &quot;fileCode&quot;: &quot;F...&quot;,
+    &quot;bizType&quot;: &quot;REFERENCE&quot;,
+    &quot;status&quot;: &quot;ACTIVE&quot;
+  },
+  &quot;requestId&quot;: &quot;REQ-APIPOST-FILE-002&quot;
+}
+</code></pre>
+<h2 id="4-url">4. 获取文件临时访问 URL</h2>
+<h3 id="_10">接口用途</h3>
+<p>用于根据文件 ID 获取一个临时访问 URL。</p>
+<p>文件不会直接暴露 MinIO 真实地址，而是通过后端生成临时 URL，用于下载或预览。</p>
+<h3 id="apipost_4">Apipost 配置</h3>
+<ul>
+<li>Method：<code>GET</code></li>
+<li>URL：<code>{{baseUrl}}/api/files/{{fileId}}/access-url</code></li>
+<li>Body：无</li>
+<li>Headers：</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>X-Request-Id</code></td>
+<td><code>REQ-APIPOST-FILE-003</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="query">Query 参数</h3>
+<table>
+<thead>
+<tr>
+<th>参数名</th>
+<th>示例值</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>usage</code></td>
+<td><code>DOWNLOAD</code></td>
+<td>使用场景，当前可填 <code>DOWNLOAD</code> 或 <code>PREVIEW</code></td>
+</tr>
+<tr>
+<td><code>expireSeconds</code></td>
+<td><code>600</code></td>
+<td>URL 有效期，最大 3600 秒</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_11">预期响应</h3>
+<pre><code class="language-json">{
+  &quot;code&quot;: 0,
+  &quot;message&quot;: &quot;success&quot;,
+  &quot;data&quot;: {
+    &quot;url&quot;: &quot;http://localhost:9000/...&quot;,
+    &quot;expireSeconds&quot;: 600,
+    &quot;usage&quot;: &quot;DOWNLOAD&quot;
+  },
+  &quot;requestId&quot;: &quot;REQ-APIPOST-FILE-003&quot;
+}
+</code></pre>
+<h2 id="5">5. 上传模板</h2>
+<h3 id="_12">接口用途</h3>
+<p>用于上传 Word 模板文件，保存模板元数据，并解析模板中的变量占位符。</p>
+<p>当前支持的占位符格式：</p>
+<pre><code class="language-text">${variable}
+{{variable}}
+</code></pre>
+<p>示例 Word 内容：</p>
+<pre><code class="language-text">Project name: ${projectName}
+Report date: {{reportDate}}
+</code></pre>
+<p>上传后，后端会解析出：</p>
+<pre><code class="language-text">projectName
+reportDate
+</code></pre>
+<h3 id="apipost_5">Apipost 配置</h3>
+<ul>
+<li>Method：<code>POST</code></li>
+<li>URL：<code>{{baseUrl}}/api/templates</code></li>
+<li>Body 类型：<code>form-data</code></li>
+<li>Headers：</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>X-Request-Id</code></td>
+<td><code>REQ-APIPOST-TPL-001</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="body_1">Body 参数</h3>
+<table>
+<thead>
+<tr>
+<th>参数名</th>
+<th>Apipost 类型</th>
+<th>必填</th>
+<th>示例值</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>file</code></td>
+<td><code>File</code></td>
+<td>是</td>
+<td>选择 <code>template.docx</code></td>
+<td>Word 模板文件，必须是真实 <code>.docx</code> 文件</td>
+</tr>
+<tr>
+<td><code>templateCode</code></td>
+<td><code>Text</code></td>
+<td>否</td>
+<td><code>TPL_CRYPTO_001</code></td>
+<td>模板编码，不填则后端生成</td>
+</tr>
+<tr>
+<td><code>templateName</code></td>
+<td><code>Text</code></td>
+<td>是</td>
+<td><code>Crypto Evaluation Template</code></td>
+<td>模板名称</td>
+</tr>
+<tr>
+<td><code>reportType</code></td>
+<td><code>Text</code></td>
+<td>是</td>
+<td><code>CRYPTO</code></td>
+<td>报告类型</td>
+</tr>
+<tr>
+<td><code>versionNo</code></td>
+<td><code>Text</code></td>
+<td>否</td>
+<td><code>1.0</code></td>
+<td>版本号，不填默认 <code>1.0</code></td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td><code>Text</code></td>
+<td>否</td>
+<td><code>Template for crypto evaluation report</code></td>
+<td>模板说明</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_13">预期响应</h3>
+<pre><code class="language-json">{
+  &quot;code&quot;: 0,
+  &quot;message&quot;: &quot;success&quot;,
+  &quot;data&quot;: {
+    &quot;id&quot;: 1,
+    &quot;templateCode&quot;: &quot;TPL_CRYPTO_001&quot;,
+    &quot;templateName&quot;: &quot;Crypto Evaluation Template&quot;,
+    &quot;reportType&quot;: &quot;CRYPTO&quot;,
+    &quot;versionNo&quot;: &quot;1.0&quot;,
+    &quot;fileId&quot;: 2,
+    &quot;status&quot;: &quot;DRAFT&quot;,
+    &quot;latest&quot;: true,
+    &quot;variables&quot;: [
+      {
+        &quot;variableCode&quot;: &quot;projectName&quot;,
+        &quot;variableName&quot;: &quot;projectName&quot;,
+        &quot;variableType&quot;: &quot;TEXT&quot;,
+        &quot;required&quot;: false,
+        &quot;sortNo&quot;: 1
+      },
+      {
+        &quot;variableCode&quot;: &quot;reportDate&quot;,
+        &quot;variableName&quot;: &quot;reportDate&quot;,
+        &quot;variableType&quot;: &quot;TEXT&quot;,
+        &quot;required&quot;: false,
+        &quot;sortNo&quot;: 2
+      }
+    ]
+  },
+  &quot;requestId&quot;: &quot;REQ-APIPOST-TPL-001&quot;
+}
+</code></pre>
+<h3 id="_14">后置脚本</h3>
+<p>用于把返回的模板 ID 保存到 Apipost 环境变量，后续接口可以直接使用 <code>{{templateId}}</code>。</p>
+<pre><code class="language-javascript">const json = pm.response.json();
+if (json.code === 0 &amp;&amp; json.data) {
+  pm.environment.set(&quot;templateId&quot;, json.data.id);
+}
+</code></pre>
+<h2 id="6">6. 查询模板列表</h2>
+<h3 id="_15">接口用途</h3>
+<p>用于分页查询模板列表。</p>
+<p>支持按以下条件筛选：</p>
+<ul>
+<li>报告类型 <code>reportType</code></li>
+<li>模板状态 <code>status</code></li>
+<li>关键字 <code>keyword</code></li>
+<li>页码 <code>pageNum</code></li>
+<li>每页大小 <code>pageSize</code></li>
+</ul>
+<h3 id="apipost_6">Apipost 配置</h3>
+<ul>
+<li>Method：<code>GET</code></li>
+<li>URL：<code>{{baseUrl}}/api/templates</code></li>
+<li>Body：无</li>
+<li>Headers：</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>X-Request-Id</code></td>
+<td><code>REQ-APIPOST-TPL-002</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="query_1">Query 参数</h3>
+<table>
+<thead>
+<tr>
+<th>参数名</th>
+<th>示例值</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>reportType</code></td>
+<td><code>CRYPTO</code></td>
+<td>报告类型</td>
+</tr>
+<tr>
+<td><code>status</code></td>
+<td><code>DRAFT</code></td>
+<td>模板状态，可填 <code>DRAFT</code>、<code>ENABLED</code>、<code>DISABLED</code></td>
+</tr>
+<tr>
+<td><code>keyword</code></td>
+<td><code>Crypto</code></td>
+<td>关键字，匹配模板编码、模板名称、说明</td>
+</tr>
+<tr>
+<td><code>pageNum</code></td>
+<td><code>1</code></td>
+<td>页码</td>
+</tr>
+<tr>
+<td><code>pageSize</code></td>
+<td><code>10</code></td>
+<td>每页数量，最大 100</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_16">预期响应</h3>
+<pre><code class="language-json">{
+  &quot;code&quot;: 0,
+  &quot;message&quot;: &quot;success&quot;,
+  &quot;data&quot;: {
+    &quot;records&quot;: [
+      {
+        &quot;id&quot;: 1,
+        &quot;templateCode&quot;: &quot;TPL_CRYPTO_001&quot;,
+        &quot;templateName&quot;: &quot;Crypto Evaluation Template&quot;,
+        &quot;reportType&quot;: &quot;CRYPTO&quot;,
+        &quot;status&quot;: &quot;DRAFT&quot;
+      }
+    ],
+    &quot;total&quot;: 1,
+    &quot;pageNum&quot;: 1,
+    &quot;pageSize&quot;: 10
+  },
+  &quot;requestId&quot;: &quot;REQ-APIPOST-TPL-002&quot;
+}
+</code></pre>
+<h2 id="7">7. 查询模板详情</h2>
+<h3 id="_17">接口用途</h3>
+<p>用于根据模板 ID 查询模板详情，包括模板元信息、模板文件 ID 和变量列表。</p>
+<h3 id="apipost_7">Apipost 配置</h3>
+<ul>
+<li>Method：<code>GET</code></li>
+<li>URL：<code>{{baseUrl}}/api/templates/{{templateId}}</code></li>
+<li>Body：无</li>
+<li>Headers：</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>X-Request-Id</code></td>
+<td><code>REQ-APIPOST-TPL-003</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="_18">预期响应</h3>
+<pre><code class="language-json">{
+  &quot;code&quot;: 0,
+  &quot;message&quot;: &quot;success&quot;,
+  &quot;data&quot;: {
+    &quot;id&quot;: 1,
+    &quot;templateCode&quot;: &quot;TPL_CRYPTO_001&quot;,
+    &quot;templateName&quot;: &quot;Crypto Evaluation Template&quot;,
+    &quot;reportType&quot;: &quot;CRYPTO&quot;,
+    &quot;status&quot;: &quot;DRAFT&quot;
+  },
+  &quot;requestId&quot;: &quot;REQ-APIPOST-TPL-003&quot;
+}
+</code></pre>
+<h2 id="8">8. 查询模板变量</h2>
+<h3 id="_19">接口用途</h3>
+<p>用于查询某个模板解析出来的变量清单。</p>
+<p>前端后续可以根据这个变量清单动态渲染表单。</p>
+<h3 id="apipost_8">Apipost 配置</h3>
+<ul>
+<li>Method：<code>GET</code></li>
+<li>URL：<code>{{baseUrl}}/api/templates/{{templateId}}/variables</code></li>
+<li>Body：无</li>
+<li>Headers：</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>X-Request-Id</code></td>
+<td><code>REQ-APIPOST-TPL-004</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="_20">预期响应</h3>
+<pre><code class="language-json">{
+  &quot;code&quot;: 0,
+  &quot;message&quot;: &quot;success&quot;,
+  &quot;data&quot;: [
+    {
+      &quot;variableCode&quot;: &quot;projectName&quot;,
+      &quot;variableName&quot;: &quot;projectName&quot;,
+      &quot;variableType&quot;: &quot;TEXT&quot;,
+      &quot;required&quot;: false,
+      &quot;sortNo&quot;: 1
+    },
+    {
+      &quot;variableCode&quot;: &quot;reportDate&quot;,
+      &quot;variableName&quot;: &quot;reportDate&quot;,
+      &quot;variableType&quot;: &quot;TEXT&quot;,
+      &quot;required&quot;: false,
+      &quot;sortNo&quot;: 2
+    }
+  ],
+  &quot;requestId&quot;: &quot;REQ-APIPOST-TPL-004&quot;
+}
+</code></pre>
+<h2 id="9">9. 启用模板</h2>
+<h3 id="_21">接口用途</h3>
+<p>用于将模板状态从 <code>DRAFT</code> 或 <code>DISABLED</code> 设置为 <code>ENABLED</code>。</p>
+<p>只有启用状态的模板后续才应该被报告生成流程选择使用。</p>
+<h3 id="apipost_9">Apipost 配置</h3>
+<ul>
+<li>Method：<code>POST</code></li>
+<li>URL：<code>{{baseUrl}}/api/templates/{{templateId}}/enable</code></li>
+<li>Body：无</li>
+<li>Headers：</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>X-Request-Id</code></td>
+<td><code>REQ-APIPOST-TPL-005</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="_22">预期响应</h3>
+<pre><code class="language-json">{
+  &quot;code&quot;: 0,
+  &quot;message&quot;: &quot;success&quot;,
+  &quot;data&quot;: null,
+  &quot;requestId&quot;: &quot;REQ-APIPOST-TPL-005&quot;
+}
+</code></pre>
+<h3 id="_23">验证方式</h3>
+<p>再请求：</p>
+<ul>
+<li>Method：<code>GET</code></li>
+<li>URL：<code>{{baseUrl}}/api/templates/{{templateId}}</code></li>
+</ul>
+<p>预期：</p>
+<pre><code class="language-text">data.status = ENABLED
+</code></pre>
+<h2 id="10">10. 停用模板</h2>
+<h3 id="_24">接口用途</h3>
+<p>用于将模板状态设置为 <code>DISABLED</code>。</p>
+<p>停用模板不影响历史报告，但后续报告生成不应再选择这个模板。</p>
+<h3 id="apipost_10">Apipost 配置</h3>
+<ul>
+<li>Method：<code>POST</code></li>
+<li>URL：<code>{{baseUrl}}/api/templates/{{templateId}}/disable</code></li>
+<li>Body：无</li>
+<li>Headers：</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>X-Request-Id</code></td>
+<td><code>REQ-APIPOST-TPL-006</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="_25">预期响应</h3>
+<pre><code class="language-json">{
+  &quot;code&quot;: 0,
+  &quot;message&quot;: &quot;success&quot;,
+  &quot;data&quot;: null,
+  &quot;requestId&quot;: &quot;REQ-APIPOST-TPL-006&quot;
+}
+</code></pre>
+<h3 id="_26">验证方式</h3>
+<p>再请求：</p>
+<ul>
+<li>Method：<code>GET</code></li>
+<li>URL：<code>{{baseUrl}}/api/templates/{{templateId}}</code></li>
+</ul>
+<p>预期：</p>
+<pre><code class="language-text">data.status = DISABLED
+</code></pre>
+<h2 id="11">11. 逻辑删除文件</h2>
+<h3 id="_27">接口用途</h3>
+<p>用于逻辑删除文件元数据。</p>
+<p>说明：</p>
+<ul>
+<li>当前接口只更新 MySQL 元数据状态。</li>
+<li>不会立即物理删除 MinIO 中的对象。</li>
+<li>物理文件清理后续可由定时任务处理。</li>
+</ul>
+<h3 id="apipost_11">Apipost 配置</h3>
+<ul>
+<li>Method：<code>DELETE</code></li>
+<li>URL：<code>{{baseUrl}}/api/files/{{fileId}}</code></li>
+<li>Body：无</li>
+<li>Headers：</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>X-Request-Id</code></td>
+<td><code>REQ-APIPOST-FILE-004</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="_28">预期响应</h3>
+<pre><code class="language-json">{
+  &quot;code&quot;: 0,
+  &quot;message&quot;: &quot;success&quot;,
+  &quot;data&quot;: null,
+  &quot;requestId&quot;: &quot;REQ-APIPOST-FILE-004&quot;
+}
+</code></pre>
+<h3 id="_29">验证方式</h3>
+<p>删除后再请求：</p>
+<ul>
+<li>Method：<code>GET</code></li>
+<li>URL：<code>{{baseUrl}}/api/files/{{fileId}}</code></li>
+</ul>
+<p>预期：</p>
+<pre><code class="language-json">{
+  &quot;code&quot;: 4041,
+  &quot;message&quot;: &quot;file object not found&quot;,
+  &quot;data&quot;: null,
+  &quot;requestId&quot;: &quot;REQ-APIPOST-FILE-005&quot;
+}
+</code></pre>
+<h2 id="_30">推荐测试顺序</h2>
+<ol>
+<li><code>GET /api/system/ping</code></li>
+<li><code>POST /api/files</code></li>
+<li><code>GET /api/files/{{fileId}}</code></li>
+<li><code>GET /api/files/{{fileId}}/access-url</code></li>
+<li><code>POST /api/templates</code></li>
+<li><code>GET /api/templates</code></li>
+<li><code>GET /api/templates/{{templateId}}</code></li>
+<li><code>GET /api/templates/{{templateId}}/variables</code></li>
+<li><code>POST /api/templates/{{templateId}}/enable</code></li>
+<li><code>POST /api/templates/{{templateId}}/disable</code></li>
+<li><code>DELETE /api/files/{{fileId}}</code></li>
+</ol>
+<h2 id="_31">常见问题</h2>
+<h3 id="1-500">1. 上传文件返回 500</h3>
+<p>优先检查：</p>
+<ul>
+<li>MySQL 是否启动</li>
+<li>MinIO 是否启动</li>
+<li><code>file_object</code> 表是否存在</li>
+<li><code>MINIO_BUCKET</code> 对应 bucket 是否创建</li>
+<li>Apipost 中 <code>file</code> 参数是否选择了 <code>File</code> 类型</li>
+</ul>
+<h3 id="2-objectname">2. 上传文件时 objectName 怎么填</h3>
+<p>第一次测试建议不要填 <code>objectName</code>，让后端自动生成。</p>
+<p>如果手动填，建议填类似：</p>
+<pre><code class="language-text">references/test/20001/demo.pdf
+</code></pre>
+<p>不要随便填 <code>111</code> 这种不带目录和扩展名的值，虽然技术上可能能上传，但不利于后续排查。</p>
+<h3 id="3_1">3. 上传模板解析失败</h3>
+<p>检查：</p>
+<ul>
+<li>文件必须是真实 <code>.docx</code>，不是 <code>.doc</code>，也不是重命名出来的 <code>.docx</code></li>
+<li>占位符必须是 <code>${variable}</code> 或 <code>{{variable}}</code></li>
+<li>变量名当前建议只使用英文、数字、下划线、点、短横线</li>
+</ul>
+<h3 id="4">4. 模板变量为空</h3>
+<p>检查 Word 模板里是否真的包含：</p>
+<pre><code class="language-text">${projectName}
+{{reportDate}}
+</code></pre>
+<p>如果使用了复杂 Word 域、文本框、图片里的文字，当前一期解析器可能不会识别。</p>
+  </main>
+</body>
+</html>

@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS file_object (
   deleted TINYINT NOT NULL DEFAULT 0 COMMENT '逻辑删除',
   UNIQUE KEY uk_file_object_code (file_code),
   KEY idx_file_object_biz (biz_type, biz_id),
+  KEY idx_file_object_hash (file_hash),
   KEY idx_file_object_uploaded_by (uploaded_by),
   KEY idx_file_object_status (status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='文件对象表';
@@ -41,7 +42,8 @@ CREATE TABLE IF NOT EXISTS template (
   UNIQUE KEY uk_template_code_version (template_code, version_no),
   KEY idx_template_report_type (report_type),
   KEY idx_template_file (file_id),
-  KEY idx_template_status (status)
+  KEY idx_template_status (status),
+  KEY idx_template_latest (template_code, is_latest, deleted)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='模板表';
 
 CREATE TABLE IF NOT EXISTS template_variable (

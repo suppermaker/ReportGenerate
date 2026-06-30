@@ -22,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.Duration;
+import java.time.OffsetDateTime;
 
 @Validated
 @RestController
@@ -72,7 +73,10 @@ public class FileController {
     ) {
         int normalizedExpireSeconds = expireSeconds == null ? DEFAULT_EXPIRE_SECONDS : expireSeconds;
         String url = fileFacade.generateDownloadUrl(fileId, Duration.ofSeconds(normalizedExpireSeconds));
-        return ApiResponse.success(new FileAccessUrlResponse(url, normalizedExpireSeconds, usage), request.getRequestId());
+        return ApiResponse.success(
+                new FileAccessUrlResponse(url, normalizedExpireSeconds, usage, OffsetDateTime.now().plusSeconds(normalizedExpireSeconds)),
+                request.getRequestId()
+        );
     }
 
     @DeleteMapping("/{fileId}")

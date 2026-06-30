@@ -37,6 +37,11 @@ public class MyBatisTemplateRepository implements TemplateRepository {
     }
 
     @Override
+    public void clearLatestByTemplateCode(String templateCode, Long updatedBy) {
+        templateMapper.clearLatestByTemplateCode(templateCode, updatedBy);
+    }
+
+    @Override
     public void updateFileId(Long id, Long fileId, Long updatedBy) {
         templateMapper.updateFileId(id, fileId, updatedBy);
     }
@@ -47,11 +52,21 @@ public class MyBatisTemplateRepository implements TemplateRepository {
     }
 
     @Override
+    public void delete(Long templateId, Long deletedBy) {
+        templateMapper.logicalDelete(templateId, deletedBy);
+    }
+
+    @Override
     public void replaceVariables(Long templateId, List<TemplateVariable> variables) {
         templateVariableMapper.logicalDeleteByTemplateId(templateId);
         if (!variables.isEmpty()) {
             templateVariableMapper.batchInsert(variables);
         }
+    }
+
+    @Override
+    public void deleteVariables(Long templateId) {
+        templateVariableMapper.logicalDeleteByTemplateId(templateId);
     }
 
     @Override

@@ -14,11 +14,17 @@ public interface TemplateRepository {
 
     List<Template> findByCondition(String reportType, String status, String keyword);
 
+    void clearLatestByTemplateCode(String templateCode, Long updatedBy);
+
     void updateFileId(Long id, Long fileId, Long updatedBy);
 
     void updateStatus(Long id, String status, Long updatedBy);
 
+    void delete(Long templateId, Long deletedBy);
+
     void replaceVariables(Long templateId, List<TemplateVariable> variables);
+
+    void deleteVariables(Long templateId);
 
     List<TemplateVariable> findVariables(Long templateId);
 }

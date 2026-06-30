@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
@@ -17,8 +18,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -88,6 +91,41 @@ class TemplateControllerTest {
     }
 
     @Test
+    void updateVariablesReturnsVariables() throws Exception {
+        when(templateFacade.updateVariables(any(), any())).thenReturn(List.of(variableResponse()));
+
+        mockMvc.perform(put("/api/templates/20/variables")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "variables": [
+                                    {
+                                      "variableCode": "projectName",
+                                      "variableName": "项目名称",
+                                      "variableType": "TEXT",
+                                      "required": true,
+                                      "sortNo": 1
+                                    }
+                                  ]
+                                }
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(0))
+                .andExpect(jsonPath("$.data[0].variableCode").value("projectName"));
+    }
+
+    @Test
+    void downloadUrlReturnsUrl() throws Exception {
+        when(templateFacade.generateDownloadUrl(20L, 600)).thenReturn("http://signed-url");
+
+        mockMvc.perform(get("/api/templates/20/download-url"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.url").value("http://signed-url"))
+                .andExpect(jsonPath("$.data.expireSeconds").value(600))
+                .andExpect(jsonPath("$.data.usage").value("DOWNLOAD"));
+    }
+
+    @Test
     void enableAndDisableDelegateToApplicationService() throws Exception {
         mockMvc.perform(post("/api/templates/20/enable"))
                 .andExpect(status().isOk())
@@ -98,6 +136,15 @@ class TemplateControllerTest {
 
         verify(templateFacade).enable(20L, null);
         verify(templateFacade).disable(20L, null);
+    }
+
+    @Test
+    void deleteDelegatesToApplicationService() throws Exception {
+        mockMvc.perform(delete("/api/templates/20"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(0));
+
+        verify(templateFacade).delete(20L, null);
     }
 
     private TemplateResponse templateResponse() {

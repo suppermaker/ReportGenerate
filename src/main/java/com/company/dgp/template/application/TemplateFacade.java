@@ -3,6 +3,7 @@ package com.company.dgp.template.application;
 import com.company.dgp.common.result.PageResult;
 import com.company.dgp.template.dto.TemplateCreateCommand;
 import com.company.dgp.template.dto.TemplateResponse;
+import com.company.dgp.template.dto.TemplateVariableUpdateRequest;
 import com.company.dgp.template.dto.TemplateVariableResponse;
 
 import java.util.List;
@@ -19,7 +20,13 @@ public interface TemplateFacade {
 
     List<TemplateVariableResponse> listVariables(Long templateId);
 
+    List<TemplateVariableResponse> updateVariables(Long templateId, TemplateVariableUpdateRequest request);
+
+    String generateDownloadUrl(Long templateId, int expireSeconds);
+
     void enable(Long templateId, Long updatedBy);
 
     void disable(Long templateId, Long updatedBy);
+
+    void delete(Long templateId, Long deletedBy);
 }

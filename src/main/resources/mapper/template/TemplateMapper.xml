@@ -79,4 +79,19 @@
             updated_by = #{updatedBy}
         WHERE id = #{id} AND deleted = 0
     </update>
+
+    <update id="clearLatestByTemplateCode">
+        UPDATE template
+        SET is_latest = 0,
+            updated_by = #{updatedBy}
+        WHERE template_code = #{templateCode}
+          AND deleted = 0
+    </update>
+
+    <update id="logicalDelete">
+        UPDATE template
+        SET deleted = 1,
+            updated_by = #{updatedBy}
+        WHERE id = #{id} AND deleted = 0
+    </update>
 </mapper>

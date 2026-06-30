@@ -3,6 +3,7 @@ package com.company.dgp.common.redis;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
 import java.time.Duration;
 import java.util.Optional;
 
@@ -27,7 +28,23 @@ public class RedisQueueService {
         stringRedisTemplate.opsForList().rightPush(queueKey, value);
     }
 
+    public void rightPushAll(String queueKey, Collection<String> values) {
+        if (values == null || values.isEmpty()) {
+            return;
+        }
+        stringRedisTemplate.opsForList().rightPushAll(queueKey, values);
+    }
+
+    public Optional<String> leftPop(String queueKey) {
+        return Optional.ofNullable(stringRedisTemplate.opsForList().leftPop(queueKey));
+    }
+
     public Optional<String> leftPop(String queueKey, Duration timeout) {
         return Optional.ofNullable(stringRedisTemplate.opsForList().leftPop(queueKey, timeout));
+    }
+
+    public long size(String queueKey) {
+        Long size = stringRedisTemplate.opsForList().size(queueKey);
+        return size == null ? 0 : size;
     }
 }

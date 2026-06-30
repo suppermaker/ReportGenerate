@@ -5,23 +5,29 @@ import com.company.dgp.common.result.PageResult;
 import com.company.dgp.template.application.TemplateFacade;
 import com.company.dgp.template.dto.TemplateCreateCommand;
 import com.company.dgp.template.dto.TemplateResponse;
+import com.company.dgp.template.dto.TemplateVariableUpdateRequest;
 import com.company.dgp.template.dto.TemplateVariableResponse;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Validated
 @RestController
@@ -91,6 +97,31 @@ public class TemplateController {
         return ApiResponse.success(templateFacade.listVariables(templateId), request.getRequestId());
     }
 
+    @PutMapping("/{templateId}/variables")
+    public ApiResponse<List<TemplateVariableResponse>> updateVariables(
+            @PathVariable Long templateId,
+            @Valid @org.springframework.web.bind.annotation.RequestBody TemplateVariableUpdateRequest updateRequest,
+            HttpServletRequest request
+    ) {
+        return ApiResponse.success(templateFacade.updateVariables(templateId, updateRequest), request.getRequestId());
+    }
+
+    @GetMapping("/{templateId}/download-url")
+    public ApiResponse<Map<String, Object>> downloadUrl(
+            @PathVariable Long templateId,
+            @RequestParam(value = "expireSeconds", defaultValue = "600") @Min(1) @Max(3600) Integer expireSeconds,
+            HttpServletRequest request
+    ) {
+        int normalizedExpireSeconds = expireSeconds == null ? 600 : expireSeconds;
+        String url = templateFacade.generateDownloadUrl(templateId, normalizedExpireSeconds);
+        return ApiResponse.success(Map.of(
+                "url", url,
+                "expireSeconds", normalizedExpireSeconds,
+                "usage", "DOWNLOAD",
+                "expireAt", OffsetDateTime.now().plusSeconds(normalizedExpireSeconds).toString()
+        ), request.getRequestId());
+    }
+
     @PostMapping("/{templateId}/enable")
     public ApiResponse<Void> enable(@PathVariable Long templateId, HttpServletRequest request) {
         templateFacade.enable(templateId, null);
@@ -100,6 +131,12 @@ public class TemplateController {
     @PostMapping("/{templateId}/disable")
     public ApiResponse<Void> disable(@PathVariable Long templateId, HttpServletRequest request) {
         templateFacade.disable(templateId, null);
+        return ApiResponse.success(null, request.getRequestId());
+    }
+
+    @DeleteMapping("/{templateId}")
+    public ApiResponse<Void> delete(@PathVariable Long templateId, HttpServletRequest request) {
+        templateFacade.delete(templateId, null);
         return ApiResponse.success(null, request.getRequestId());
     }
 }

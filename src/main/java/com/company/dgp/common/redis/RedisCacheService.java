@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
 import java.time.Duration;
 import java.util.Optional;
 
@@ -47,5 +48,14 @@ public class RedisCacheService {
 
     public void delete(String key) {
         stringRedisTemplate.delete(RedisKeys.cache(key));
+    }
+
+    public void deleteAll(Collection<String> keys) {
+        if (keys == null || keys.isEmpty()) {
+            return;
+        }
+        stringRedisTemplate.delete(keys.stream()
+                .map(RedisKeys::cache)
+                .toList());
     }
 }

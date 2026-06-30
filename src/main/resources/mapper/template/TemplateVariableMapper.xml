@@ -41,9 +41,8 @@
         ORDER BY sort_no ASC, id ASC
     </select>
 
-    <update id="logicalDeleteByTemplateId">
-        UPDATE template_variable
-        SET deleted = 1
+    <delete id="logicalDeleteByTemplateId">
+        DELETE FROM template_variable
         WHERE template_id = #{templateId}
-    </update>
+    </delete>
 </mapper>

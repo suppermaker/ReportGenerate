@@ -11,6 +11,7 @@ import com.company.dgp.template.domain.TemplateStatus;
 import com.company.dgp.template.domain.TemplateVariable;
 import com.company.dgp.template.dto.TemplateCreateCommand;
 import com.company.dgp.template.dto.TemplateResponse;
+import com.company.dgp.template.dto.TemplateVariableUpdateRequest;
 import com.company.dgp.template.dto.TemplateVariableResponse;
 import com.company.dgp.template.parser.TemplateVariableParser;
 import com.company.dgp.template.repository.TemplateRepository;
@@ -22,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.Duration;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
@@ -50,6 +52,7 @@ public class TemplateApplicationService implements TemplateFacade {
         byte[] content = readAllBytes(command.inputStream());
         String versionNo = defaultIfBlank(command.versionNo(), "1.0");
         String templateCode = defaultIfBlank(command.templateCode(), nextTemplateCode());
+        templateRepository.clearLatestByTemplateCode(templateCode, command.createdBy());
 
         Template template = new Template();
         template.setTemplateCode(templateCode);
@@ -121,6 +124,29 @@ public class TemplateApplicationService implements TemplateFacade {
     }
 
     @Override
+    @Transactional
+    public List<TemplateVariableResponse> updateVariables(Long templateId, TemplateVariableUpdateRequest request) {
+        findTemplate(templateId);
+        if (request == null || request.variables() == null || request.variables().isEmpty()) {
+            throw new BusinessException(4001, "template variables are required");
+        }
+        List<TemplateVariable> variables = toVariablesFromRequest(templateId, request.variables());
+        templateRepository.replaceVariables(templateId, variables);
+        return variables.stream()
+                .map(TemplateVariableResponse::from)
+                .toList();
+    }
+
+    @Override
+    public String generateDownloadUrl(Long templateId, int expireSeconds) {
+        Template template = findTemplate(templateId);
+        if (template.getFileId() == null) {
+            throw new BusinessException(4043, "template file not found");
+        }
+        return fileFacade.generateDownloadUrl(template.getFileId(), Duration.ofSeconds(expireSeconds));
+    }
+
+    @Override
     public void enable(Long templateId, Long updatedBy) {
         findTemplate(templateId);
         templateRepository.updateStatus(templateId, TemplateStatus.ENABLED, updatedBy);
@@ -130,6 +156,17 @@ public class TemplateApplicationService implements TemplateFacade {
     public void disable(Long templateId, Long updatedBy) {
         findTemplate(templateId);
         templateRepository.updateStatus(templateId, TemplateStatus.DISABLED, updatedBy);
+    }
+
+    @Override
+    @Transactional
+    public void delete(Long templateId, Long deletedBy) {
+        Template template = findTemplate(templateId);
+        templateRepository.delete(templateId, deletedBy);
+        templateRepository.deleteVariables(templateId);
+        if (template.getFileId() != null) {
+            fileFacade.delete(template.getFileId());
+        }
     }
 
     private Template findTemplate(Long templateId) {
@@ -152,6 +189,9 @@ public class TemplateApplicationService implements TemplateFacade {
         }
         if (command.inputStream() == null) {
             throw new BusinessException(4001, "template file stream is required");
+        }
+        if (!isDocx(command.originalFilename(), command.contentType())) {
+            throw new BusinessException(4001, "template file must be docx");
         }
     }
 
@@ -179,6 +219,28 @@ public class TemplateApplicationService implements TemplateFacade {
         return variables;
     }
 
+    private List<TemplateVariable> toVariablesFromRequest(Long templateId, List<TemplateVariableUpdateRequest.Item> items) {
+        java.util.ArrayList<TemplateVariable> variables = new java.util.ArrayList<>();
+        for (int i = 0; i < items.size(); i++) {
+            TemplateVariableUpdateRequest.Item item = items.get(i);
+            if (item.variableCode() == null || item.variableCode().isBlank()) {
+                throw new BusinessException(4001, "template variable code is required");
+            }
+            TemplateVariable variable = new TemplateVariable();
+            variable.setTemplateId(templateId);
+            variable.setVariableCode(item.variableCode());
+            variable.setVariableName(defaultIfBlank(item.variableName(), item.variableCode()));
+            variable.setVariableType(defaultIfBlank(item.variableType(), "TEXT"));
+            variable.setRequired(Boolean.TRUE.equals(item.required()));
+            variable.setDefaultValue(item.defaultValue());
+            variable.setOptionsJson(item.optionsJson());
+            variable.setDescription(item.description());
+            variable.setSortNo(item.sortNo() == null ? i + 1 : item.sortNo());
+            variables.add(variable);
+        }
+        return variables;
+    }
+
     private TemplateResponse toResponse(Template template, List<TemplateVariable> variables) {
         return TemplateResponse.from(template, variables.stream()
                 .map(TemplateVariableResponse::from)
@@ -199,5 +261,11 @@ public class TemplateApplicationService implements TemplateFacade {
 
     private boolean isBlank(String value) {
         return value == null || value.isBlank();
+    }
+
+    private boolean isDocx(String filename, String contentType) {
+        boolean docxExt = filename != null && filename.toLowerCase(Locale.ROOT).endsWith(".docx");
+        boolean docxContentType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document".equals(contentType);
+        return docxExt || docxContentType;
     }
 }

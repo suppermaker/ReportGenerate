@@ -15,4 +15,16 @@ public final class RedisKeys {
     public static String lock(String key) {
         return PREFIX + "lock:" + key;
     }
+
+    public static String template(Long templateId) {
+        return "template:" + templateId;
+    }
+
+    public static String file(Long fileId) {
+        return "file:" + fileId;
+    }
+
+    public static String taskLock(String taskCode) {
+        return "task:" + taskCode;
+    }
 }

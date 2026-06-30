@@ -1,6 +1,7 @@
 package com.company.dgp.file.application;
 
 import com.company.dgp.common.exception.BusinessException;
+import com.company.dgp.file.config.FileUploadProperties;
 import com.company.dgp.file.domain.FileBizType;
 import com.company.dgp.file.domain.FileObject;
 import com.company.dgp.file.domain.FileObjectStatus;
@@ -19,6 +20,7 @@ import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.HexFormat;
+import java.util.Set;
 import java.util.Locale;
 import java.util.UUID;
 
@@ -27,10 +29,16 @@ public class FileApplicationService implements FileFacade {
 
     private final FileObjectRepository fileObjectRepository;
     private final StorageAdapter storageAdapter;
+    private final FileUploadProperties fileUploadProperties;
 
-    public FileApplicationService(FileObjectRepository fileObjectRepository, StorageAdapter storageAdapter) {
+    public FileApplicationService(
+            FileObjectRepository fileObjectRepository,
+            StorageAdapter storageAdapter,
+            FileUploadProperties fileUploadProperties
+    ) {
         this.fileObjectRepository = fileObjectRepository;
         this.storageAdapter = storageAdapter;
+        this.fileUploadProperties = fileUploadProperties;
     }
 
     @Override
@@ -128,9 +136,29 @@ public class FileApplicationService implements FileFacade {
         if (requireObjectName && (command.objectName() == null || command.objectName().isBlank())) {
             throw new BusinessException(4001, "object name is required");
         }
-        if (command.fileSize() < 0) {
+        if (!validBizTypes().contains(command.bizType())) {
+            throw new BusinessException(4001, "file biz type is invalid");
+        }
+        if (command.fileSize() <= 0) {
             throw new BusinessException(4001, "file size is invalid");
         }
+        if (command.fileSize() > fileUploadProperties.getMaxSize()) {
+            throw new BusinessException(4001, "file size exceeds limit");
+        }
+        String fileExt = resolveFileExt(command.originalFilename());
+        if (!fileUploadProperties.getAllowedExtensions().contains(fileExt)) {
+            throw new BusinessException(4001, "file extension is not allowed");
+        }
+    }
+
+    private Set<String> validBizTypes() {
+        return Set.of(
+                FileBizType.TEMPLATE,
+                FileBizType.REFERENCE,
+                FileBizType.REPORT,
+                FileBizType.PREVIEW,
+                FileBizType.OTHER
+        );
     }
 
     private byte[] readAllBytes(FileUploadCommand command) {

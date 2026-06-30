@@ -20,5 +20,9 @@ public interface TemplateMapper extends DgpMapper {
 
     int updateFileId(@Param("id") Long id, @Param("fileId") Long fileId, @Param("updatedBy") Long updatedBy);
 
+    int clearLatestByTemplateCode(@Param("templateCode") String templateCode, @Param("updatedBy") Long updatedBy);
+
     int updateStatus(@Param("id") Long id, @Param("status") String status, @Param("updatedBy") Long updatedBy);
+
+    int logicalDelete(@Param("id") Long id, @Param("updatedBy") Long updatedBy);
 }

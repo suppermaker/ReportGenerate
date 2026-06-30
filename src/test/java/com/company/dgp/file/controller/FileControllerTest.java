@@ -70,7 +70,8 @@ class FileControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.url").value("http://signed-url"))
                 .andExpect(jsonPath("$.data.expireSeconds").value(600))
-                .andExpect(jsonPath("$.data.usage").value("DOWNLOAD"));
+                .andExpect(jsonPath("$.data.usage").value("DOWNLOAD"))
+                .andExpect(jsonPath("$.data.expireAt").exists());
     }
 
     @Test

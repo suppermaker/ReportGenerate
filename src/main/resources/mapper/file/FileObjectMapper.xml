@@ -55,6 +55,24 @@
         WHERE file_code = #{fileCode} AND deleted = 0
     </select>
 
+    <select id="selectByBizTypeAndBizId" resultMap="FileObjectResultMap">
+        SELECT <include refid="BaseColumns"/>
+        FROM file_object
+        WHERE biz_type = #{bizType}
+          AND biz_id = #{bizId}
+          AND deleted = 0
+        ORDER BY uploaded_at DESC, id DESC
+    </select>
+
+    <select id="selectByFileHash" resultMap="FileObjectResultMap">
+        SELECT <include refid="BaseColumns"/>
+        FROM file_object
+        WHERE file_hash = #{fileHash}
+          AND deleted = 0
+        ORDER BY id DESC
+        LIMIT 1
+    </select>
+
     <update id="updateStatus">
         UPDATE file_object
         SET status = #{status},

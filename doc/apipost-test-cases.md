@@ -635,3 +635,42 @@ ${projectName}
 ```
 
 如果使用了复杂 Word 域、文本框、图片里的文字，当前一期解析器可能不会识别。
+
+## 删除模板
+
+### 接口用途
+
+用于逻辑删除一个模板，同时逻辑删除该模板下的变量，并把关联模板文件元数据标记为已删除；不会物理删除 MinIO 中的真实文件。
+
+### Apipost 配置
+
+- Method?`DELETE`
+- URL?`{{baseUrl}}/api/templates/{{templateId}}`
+- Body?无
+- Headers?
+
+| Key | Value |
+| --- | --- |
+| `X-Request-Id` | `REQ-APIPOST-DELETE-TEMPLATE` |
+
+### 路径变量
+
+| 变量名 | 示例值 | 说明 |
+| --- | --- | --- |
+| `templateId` | `20` | 要删除的模板 ID |
+
+### 预期响应
+
+```json
+{
+  "code": 0,
+  "message": "success",
+  "data": null,
+  "requestId": "REQ-APIPOST-DELETE-TEMPLATE"
+}
+```
+
+### 注意事项
+
+- 删除后再次查询该模板详情，预期会返回“模板不存在”类业务异常。
+- 该接口只做逻辑删除，不会直接删除 MinIO 文件。
