@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.company.dgp.template.mapper.TemplateVariableMapper">
+
+    <resultMap id="TemplateVariableResultMap" type="com.company.dgp.template.domain.TemplateVariable">
+        <id property="id" column="id"/>
+        <result property="templateId" column="template_id"/>
+        <result property="variableCode" column="variable_code"/>
+        <result property="variableName" column="variable_name"/>
+        <result property="variableType" column="variable_type"/>
+        <result property="required" column="required"/>
+        <result property="defaultValue" column="default_value"/>
+        <result property="optionsJson" column="options_json"/>
+        <result property="description" column="description"/>
+        <result property="sortNo" column="sort_no"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="deleted" column="deleted"/>
+    </resultMap>
+
+    <insert id="batchInsert">
+        INSERT INTO template_variable (
+            template_id, variable_code, variable_name, variable_type, required,
+            default_value, options_json, description, sort_no, deleted
+        ) VALUES
+        <foreach collection="variables" item="item" separator=",">
+            (
+                #{item.templateId}, #{item.variableCode}, #{item.variableName}, #{item.variableType}, #{item.required},
+                #{item.defaultValue}, #{item.optionsJson}, #{item.description}, #{item.sortNo}, 0
+            )
+        </foreach>
+    </insert>
+
+    <select id="selectByTemplateId" resultMap="TemplateVariableResultMap">
+        SELECT id, template_id, variable_code, variable_name, variable_type, required,
+               default_value, options_json, description, sort_no, created_at, updated_at, deleted
+        FROM template_variable
+        WHERE template_id = #{templateId} AND deleted = 0
+        ORDER BY sort_no ASC, id ASC
+    </select>
+
+    <update id="logicalDeleteByTemplateId">
+        UPDATE template_variable
+        SET deleted = 1
+        WHERE template_id = #{templateId}
+    </update>
+</mapper>

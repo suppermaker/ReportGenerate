@@ -1,0 +1,63 @@
+CREATE TABLE IF NOT EXISTS file_object (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '文件ID',
+  file_code VARCHAR(64) NOT NULL COMMENT '文件业务编号',
+  biz_type VARCHAR(32) NOT NULL COMMENT '业务类型：TEMPLATE/REFERENCE/REPORT/PREVIEW/OTHER',
+  biz_id BIGINT NULL COMMENT '关联业务ID',
+  original_filename VARCHAR(255) NOT NULL COMMENT '原始文件名',
+  object_name VARCHAR(512) NOT NULL COMMENT 'MinIO对象路径',
+  bucket_name VARCHAR(128) NOT NULL COMMENT 'Bucket名称',
+  content_type VARCHAR(128) NULL COMMENT 'MIME类型',
+  file_ext VARCHAR(32) NULL COMMENT '扩展名',
+  file_size BIGINT NOT NULL DEFAULT 0 COMMENT '文件大小',
+  file_hash VARCHAR(128) NULL COMMENT '文件Hash',
+  storage_provider VARCHAR(32) NOT NULL DEFAULT 'MINIO' COMMENT '存储提供方',
+  status VARCHAR(32) NOT NULL DEFAULT 'ACTIVE' COMMENT 'ACTIVE/DELETED',
+  uploaded_by BIGINT NULL COMMENT '上传人',
+  uploaded_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '上传时间',
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  deleted TINYINT NOT NULL DEFAULT 0 COMMENT '逻辑删除',
+  UNIQUE KEY uk_file_object_code (file_code),
+  KEY idx_file_object_biz (biz_type, biz_id),
+  KEY idx_file_object_uploaded_by (uploaded_by),
+  KEY idx_file_object_status (status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='文件对象表';
+
+CREATE TABLE IF NOT EXISTS template (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '模板ID',
+  template_code VARCHAR(64) NOT NULL COMMENT '模板编码',
+  template_name VARCHAR(128) NOT NULL COMMENT '模板名称',
+  report_type VARCHAR(64) NOT NULL COMMENT '报告类型',
+  version_no VARCHAR(32) NOT NULL DEFAULT '1.0' COMMENT '版本号',
+  file_id BIGINT NULL COMMENT '模板文件ID',
+  description VARCHAR(500) NULL COMMENT '模板说明',
+  status VARCHAR(32) NOT NULL DEFAULT 'DRAFT' COMMENT 'DRAFT/ENABLED/DISABLED',
+  is_latest TINYINT NOT NULL DEFAULT 1 COMMENT '是否最新版本',
+  created_by BIGINT NULL COMMENT '创建人',
+  updated_by BIGINT NULL COMMENT '更新人',
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  deleted TINYINT NOT NULL DEFAULT 0 COMMENT '逻辑删除',
+  UNIQUE KEY uk_template_code_version (template_code, version_no),
+  KEY idx_template_report_type (report_type),
+  KEY idx_template_file (file_id),
+  KEY idx_template_status (status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='模板表';
+
+CREATE TABLE IF NOT EXISTS template_variable (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '模板变量ID',
+  template_id BIGINT NOT NULL COMMENT '模板ID',
+  variable_code VARCHAR(128) NOT NULL COMMENT '变量编码',
+  variable_name VARCHAR(128) NOT NULL COMMENT '变量名称',
+  variable_type VARCHAR(32) NOT NULL DEFAULT 'TEXT' COMMENT 'TEXT/NUMBER/DATE/BOOLEAN/SELECT/FILE/LIST',
+  required TINYINT NOT NULL DEFAULT 0 COMMENT '是否必填',
+  default_value TEXT NULL COMMENT '默认值',
+  options_json JSON NULL COMMENT '选项配置',
+  description VARCHAR(500) NULL COMMENT '变量说明',
+  sort_no INT NOT NULL DEFAULT 0 COMMENT '排序',
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  deleted TINYINT NOT NULL DEFAULT 0 COMMENT '逻辑删除',
+  UNIQUE KEY uk_template_variable (template_id, variable_code),
+  KEY idx_template_variable_template (template_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='模板变量表';

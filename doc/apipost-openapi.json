@@ -1,0 +1,1338 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "??????????",
+    "description": "ReportGenerate ??????????????????????????????",
+    "version": "0.0.1-SNAPSHOT"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080",
+      "description": "??????"
+    }
+  ],
+  "tags": [
+    {
+      "name": "System",
+      "description": "??????"
+    },
+    {
+      "name": "File",
+      "description": "??????"
+    },
+    {
+      "name": "Template",
+      "description": "??????"
+    },
+    {
+      "name": "Actuator",
+      "description": "Spring Boot ??????"
+    }
+  ],
+  "paths": {
+    "/api/system/ping": {
+      "get": {
+        "tags": [
+          "System"
+        ],
+        "summary": "????",
+        "description": "?????????????",
+        "operationId": "pingSystem",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/XRequestIdHeader"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "??",
+            "headers": {
+              "X-Request-Id": {
+                "description": "???? ID",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PingApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/files": {
+      "post": {
+        "tags": [
+          "File"
+        ],
+        "summary": "????",
+        "description": "????? MinIO???? file_object ???????????? Body ? form-data ??",
+        "operationId": "uploadFile",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/XRequestIdHeader"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "file",
+                  "bizType"
+                ],
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "?????Apipost ???? File ???"
+                  },
+                  "bizType": {
+                    "type": "string",
+                    "description": "??????",
+                    "enum": [
+                      "TEMPLATE",
+                      "REFERENCE",
+                      "REPORT",
+                      "PREVIEW",
+                      "OTHER"
+                    ],
+                    "example": "REFERENCE"
+                  },
+                  "bizId": {
+                    "type": "integer",
+                    "format": "int64",
+                    "nullable": true,
+                    "description": "???? ID",
+                    "example": 20001
+                  },
+                  "objectName": {
+                    "type": "string",
+                    "nullable": true,
+                    "description": "MinIO ???????????????",
+                    "example": "references/test/20001/demo.pdf"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "??",
+            "headers": {
+              "X-Request-Id": {
+                "description": "???? ID",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FileObjectApiResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "?????????????",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApiResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "??????",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/files/{fileId}": {
+      "get": {
+        "tags": [
+          "File"
+        ],
+        "summary": "??????",
+        "description": "???? ID ????????fileId ????????? Path ???? Body?",
+        "operationId": "getFile",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/XRequestIdHeader"
+          },
+          {
+            "name": "fileId",
+            "in": "path",
+            "required": true,
+            "description": "?? ID",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "example": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "??",
+            "headers": {
+              "X-Request-Id": {
+                "description": "???? ID",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FileObjectApiResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "?????????????",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApiResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "??????",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApiResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "File"
+        ],
+        "summary": "??????",
+        "description": "??????????fileId ????????? Path ???? Body?",
+        "operationId": "deleteFile",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/XRequestIdHeader"
+          },
+          {
+            "name": "fileId",
+            "in": "path",
+            "required": true,
+            "description": "?? ID",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "example": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "??",
+            "headers": {
+              "X-Request-Id": {
+                "description": "???? ID",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VoidApiResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "?????????????",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApiResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "??????",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/files/{fileId}/access-url": {
+      "get": {
+        "tags": [
+          "File"
+        ],
+        "summary": "???????? URL",
+        "description": "??????????? URL?fileId ? Path?usage?expireSeconds ? Query ????? Body?",
+        "operationId": "getFileAccessUrl",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/XRequestIdHeader"
+          },
+          {
+            "name": "fileId",
+            "in": "path",
+            "required": true,
+            "description": "?? ID",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "example": 1
+          },
+          {
+            "name": "usage",
+            "in": "query",
+            "required": false,
+            "description": "????",
+            "schema": {
+              "type": "string",
+              "default": "DOWNLOAD",
+              "enum": [
+                "DOWNLOAD",
+                "PREVIEW"
+              ]
+            },
+            "example": "DOWNLOAD"
+          },
+          {
+            "name": "expireSeconds",
+            "in": "query",
+            "required": false,
+            "description": "?? URL ?????? 3600 ?",
+            "schema": {
+              "type": "integer",
+              "default": 600,
+              "minimum": 1,
+              "maximum": 3600
+            },
+            "example": 600
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "??",
+            "headers": {
+              "X-Request-Id": {
+                "description": "???? ID",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FileAccessUrlApiResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "?????????????",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApiResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "??????",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/templates": {
+      "post": {
+        "tags": [
+          "Template"
+        ],
+        "summary": "????",
+        "description": "?? Word ????????????????????????? Body ? form-data ??",
+        "operationId": "createTemplate",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/XRequestIdHeader"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "file",
+                  "templateName",
+                  "reportType"
+                ],
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Word ?????Apipost ???? File ???"
+                  },
+                  "templateCode": {
+                    "type": "string",
+                    "nullable": true,
+                    "description": "????????????",
+                    "example": "TPL_CRYPTO_001"
+                  },
+                  "templateName": {
+                    "type": "string",
+                    "description": "????",
+                    "example": "??????"
+                  },
+                  "reportType": {
+                    "type": "string",
+                    "description": "????",
+                    "example": "CRYPTO"
+                  },
+                  "versionNo": {
+                    "type": "string",
+                    "nullable": true,
+                    "description": "???????? 1.0",
+                    "default": "1.0",
+                    "example": "1.0"
+                  },
+                  "description": {
+                    "type": "string",
+                    "nullable": true,
+                    "description": "????",
+                    "example": "????"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "??",
+            "headers": {
+              "X-Request-Id": {
+                "description": "???? ID",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TemplateApiResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "?????????????",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApiResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "??????",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApiResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Template"
+        ],
+        "summary": "??????",
+        "description": "?????????reportType?status?keyword?pageNum?pageSize ? Query ????? Body?",
+        "operationId": "listTemplates",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/XRequestIdHeader"
+          },
+          {
+            "name": "reportType",
+            "in": "query",
+            "required": false,
+            "description": "????",
+            "schema": {
+              "type": "string"
+            },
+            "example": "CRYPTO"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "description": "????",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "DRAFT",
+                "ENABLED",
+                "DISABLED"
+              ]
+            },
+            "example": "DRAFT"
+          },
+          {
+            "name": "keyword",
+            "in": "query",
+            "required": false,
+            "description": "???",
+            "schema": {
+              "type": "string"
+            },
+            "example": "??"
+          },
+          {
+            "name": "pageNum",
+            "in": "query",
+            "required": false,
+            "description": "??",
+            "schema": {
+              "type": "integer",
+              "default": 1,
+              "minimum": 1
+            },
+            "example": 1
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "description": "??????? 100",
+            "schema": {
+              "type": "integer",
+              "default": 10,
+              "minimum": 1,
+              "maximum": 100
+            },
+            "example": 10
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "??",
+            "headers": {
+              "X-Request-Id": {
+                "description": "???? ID",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TemplatePageApiResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "?????????????",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApiResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "??????",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/templates/{templateId}": {
+      "get": {
+        "tags": [
+          "Template"
+        ],
+        "summary": "??????",
+        "description": "???? ID ?????????????templateId ????????? Path ???? Body?",
+        "operationId": "getTemplate",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/XRequestIdHeader"
+          },
+          {
+            "name": "templateId",
+            "in": "path",
+            "required": true,
+            "description": "?? ID",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "example": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "??",
+            "headers": {
+              "X-Request-Id": {
+                "description": "???? ID",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TemplateApiResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "?????????????",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApiResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "??????",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/templates/{templateId}/variables": {
+      "get": {
+        "tags": [
+          "Template"
+        ],
+        "summary": "??????",
+        "description": "?????????????templateId ????????? Path ???? Body?",
+        "operationId": "listTemplateVariables",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/XRequestIdHeader"
+          },
+          {
+            "name": "templateId",
+            "in": "path",
+            "required": true,
+            "description": "?? ID",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "example": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "??",
+            "headers": {
+              "X-Request-Id": {
+                "description": "???? ID",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TemplateVariableListApiResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "?????????????",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApiResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "??????",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/templates/{templateId}/enable": {
+      "post": {
+        "tags": [
+          "Template"
+        ],
+        "summary": "????",
+        "description": "???????? ENABLED?templateId ????????? Path ???? Body?",
+        "operationId": "enableTemplate",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/XRequestIdHeader"
+          },
+          {
+            "name": "templateId",
+            "in": "path",
+            "required": true,
+            "description": "?? ID",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "example": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "??",
+            "headers": {
+              "X-Request-Id": {
+                "description": "???? ID",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VoidApiResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "?????????????",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApiResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "??????",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/templates/{templateId}/disable": {
+      "post": {
+        "tags": [
+          "Template"
+        ],
+        "summary": "????",
+        "description": "???????? DISABLED?templateId ????????? Path ???? Body?",
+        "operationId": "disableTemplate",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/XRequestIdHeader"
+          },
+          {
+            "name": "templateId",
+            "in": "path",
+            "required": true,
+            "description": "?? ID",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "example": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "??",
+            "headers": {
+              "X-Request-Id": {
+                "description": "???? ID",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VoidApiResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "?????????????",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApiResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "??????",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/actuator/health": {
+      "get": {
+        "tags": [
+          "Actuator"
+        ],
+        "summary": "??????",
+        "description": "Spring Boot Actuator ???????",
+        "operationId": "getActuatorHealth",
+        "responses": {
+          "200": {
+            "description": "????",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                },
+                "example": {
+                  "status": "UP"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "parameters": {
+      "XRequestIdHeader": {
+        "name": "X-Request-Id",
+        "in": "header",
+        "required": false,
+        "description": "???? ID???????????",
+        "schema": {
+          "type": "string"
+        },
+        "example": "REQ202606300001"
+      }
+    },
+    "schemas": {
+      "PingData": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "ok"
+          },
+          "time": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-06-30T12:00:00+08:00"
+          }
+        }
+      },
+      "HealthResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "UP"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "FileObjectResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "example": 10001
+          },
+          "fileCode": {
+            "type": "string",
+            "example": "F001"
+          },
+          "bizType": {
+            "type": "string",
+            "example": "REFERENCE"
+          },
+          "bizId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true,
+            "example": 20001
+          },
+          "originalFilename": {
+            "type": "string",
+            "example": "evaluation-material.pdf"
+          },
+          "objectName": {
+            "type": "string",
+            "example": "references/unknown/20001/F001/evaluation-material.pdf"
+          },
+          "bucketName": {
+            "type": "string",
+            "example": "report-generate"
+          },
+          "contentType": {
+            "type": "string",
+            "example": "application/pdf"
+          },
+          "fileExt": {
+            "type": "string",
+            "example": "pdf"
+          },
+          "fileSize": {
+            "type": "integer",
+            "format": "int64",
+            "example": 204800
+          },
+          "fileHash": {
+            "type": "string",
+            "nullable": true,
+            "example": "sha256:xxxx"
+          },
+          "status": {
+            "type": "string",
+            "example": "ACTIVE"
+          }
+        }
+      },
+      "FileAccessUrlResponse": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "example": "http://localhost:9000/report-generate/references/demo.pdf?X-Amz-Signature=xxx"
+          },
+          "expireSeconds": {
+            "type": "integer",
+            "example": 600
+          },
+          "usage": {
+            "type": "string",
+            "enum": [
+              "DOWNLOAD",
+              "PREVIEW"
+            ],
+            "example": "DOWNLOAD"
+          }
+        }
+      },
+      "TemplateVariableResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "example": 1
+          },
+          "templateId": {
+            "type": "integer",
+            "format": "int64",
+            "example": 20
+          },
+          "variableCode": {
+            "type": "string",
+            "example": "projectName"
+          },
+          "variableName": {
+            "type": "string",
+            "example": "projectName"
+          },
+          "variableType": {
+            "type": "string",
+            "example": "TEXT"
+          },
+          "required": {
+            "type": "boolean",
+            "example": false
+          },
+          "defaultValue": {
+            "type": "string",
+            "nullable": true,
+            "example": null
+          },
+          "sortNo": {
+            "type": "integer",
+            "example": 1
+          }
+        }
+      },
+      "TemplateResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "example": 20
+          },
+          "templateCode": {
+            "type": "string",
+            "example": "TPL_CRYPTO_001"
+          },
+          "templateName": {
+            "type": "string",
+            "example": "??????"
+          },
+          "reportType": {
+            "type": "string",
+            "example": "CRYPTO"
+          },
+          "versionNo": {
+            "type": "string",
+            "example": "1.0"
+          },
+          "fileId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true,
+            "example": 10001
+          },
+          "description": {
+            "type": "string",
+            "nullable": true,
+            "example": "????"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "ENABLED",
+              "DISABLED"
+            ],
+            "example": "DRAFT"
+          },
+          "latest": {
+            "type": "boolean",
+            "example": true
+          },
+          "variables": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TemplateVariableResponse"
+            }
+          }
+        }
+      },
+      "TemplatePageResult": {
+        "type": "object",
+        "properties": {
+          "records": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TemplateResponse"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64",
+            "example": 1
+          },
+          "pageNum": {
+            "type": "integer",
+            "example": 1
+          },
+          "pageSize": {
+            "type": "integer",
+            "example": 10
+          }
+        }
+      },
+      "PingApiResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "example": 0
+          },
+          "message": {
+            "type": "string",
+            "example": "success"
+          },
+          "data": {
+            "$ref": "#/components/schemas/PingData"
+          },
+          "requestId": {
+            "type": "string",
+            "example": "REQ202606300001"
+          }
+        },
+        "required": [
+          "code",
+          "message"
+        ]
+      },
+      "FileObjectApiResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "example": 0
+          },
+          "message": {
+            "type": "string",
+            "example": "success"
+          },
+          "data": {
+            "$ref": "#/components/schemas/FileObjectResponse"
+          },
+          "requestId": {
+            "type": "string",
+            "example": "REQ202606300001"
+          }
+        },
+        "required": [
+          "code",
+          "message"
+        ]
+      },
+      "FileAccessUrlApiResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "example": 0
+          },
+          "message": {
+            "type": "string",
+            "example": "success"
+          },
+          "data": {
+            "$ref": "#/components/schemas/FileAccessUrlResponse"
+          },
+          "requestId": {
+            "type": "string",
+            "example": "REQ202606300001"
+          }
+        },
+        "required": [
+          "code",
+          "message"
+        ]
+      },
+      "TemplateApiResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "example": 0
+          },
+          "message": {
+            "type": "string",
+            "example": "success"
+          },
+          "data": {
+            "$ref": "#/components/schemas/TemplateResponse"
+          },
+          "requestId": {
+            "type": "string",
+            "example": "REQ202606300001"
+          }
+        },
+        "required": [
+          "code",
+          "message"
+        ]
+      },
+      "TemplatePageApiResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "example": 0
+          },
+          "message": {
+            "type": "string",
+            "example": "success"
+          },
+          "data": {
+            "$ref": "#/components/schemas/TemplatePageResult"
+          },
+          "requestId": {
+            "type": "string",
+            "example": "REQ202606300001"
+          }
+        },
+        "required": [
+          "code",
+          "message"
+        ]
+      },
+      "TemplateVariableListApiResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "example": 0
+          },
+          "message": {
+            "type": "string",
+            "example": "success"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TemplateVariableResponse"
+            }
+          },
+          "requestId": {
+            "type": "string",
+            "example": "REQ202606300001"
+          }
+        },
+        "required": [
+          "code",
+          "message"
+        ]
+      },
+      "VoidApiResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "example": 0
+          },
+          "message": {
+            "type": "string",
+            "example": "success"
+          },
+          "data": {
+            "nullable": true
+          },
+          "requestId": {
+            "type": "string",
+            "example": "REQ202606300001"
+          }
+        },
+        "required": [
+          "code",
+          "message"
+        ]
+      },
+      "ErrorApiResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "example": 400
+          },
+          "message": {
+            "type": "string",
+            "example": "validation failed"
+          },
+          "data": {
+            "nullable": true
+          },
+          "requestId": {
+            "type": "string",
+            "example": "REQ202606300001"
+          }
+        },
+        "required": [
+          "code",
+          "message"
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.company.dgp.template.mapper.TemplateMapper">
+
+    <resultMap id="TemplateResultMap" type="com.company.dgp.template.domain.Template">
+        <id property="id" column="id"/>
+        <result property="templateCode" column="template_code"/>
+        <result property="templateName" column="template_name"/>
+        <result property="reportType" column="report_type"/>
+        <result property="versionNo" column="version_no"/>
+        <result property="fileId" column="file_id"/>
+        <result property="description" column="description"/>
+        <result property="status" column="status"/>
+        <result property="latest" column="is_latest"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="updatedBy" column="updated_by"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="deleted" column="deleted"/>
+    </resultMap>
+
+    <sql id="BaseColumns">
+        id, template_code, template_name, report_type, version_no, file_id,
+        description, status, is_latest, created_by, updated_by, created_at, updated_at, deleted
+    </sql>
+
+    <insert id="insert" parameterType="com.company.dgp.template.domain.Template" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO template
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            template_code, template_name, report_type, version_no,
+            <if test="fileId != null">file_id,</if>
+            description, status, is_latest, created_by, updated_by, deleted
+        </trim>
+        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
+            #{templateCode}, #{templateName}, #{reportType}, #{versionNo},
+            <if test="fileId != null">#{fileId},</if>
+            #{description}, #{status}, #{latest}, #{createdBy}, #{updatedBy}, 0
+        </trim>
+    </insert>
+
+    <select id="selectById" resultMap="TemplateResultMap">
+        SELECT <include refid="BaseColumns"/>
+        FROM template
+        WHERE id = #{id} AND deleted = 0
+    </select>
+
+    <select id="selectByCondition" resultMap="TemplateResultMap">
+        SELECT <include refid="BaseColumns"/>
+        FROM template
+        WHERE deleted = 0
+        <if test="reportType != null and reportType != ''">
+            AND report_type = #{reportType}
+        </if>
+        <if test="status != null and status != ''">
+            AND status = #{status}
+        </if>
+        <if test="keyword != null and keyword != ''">
+            AND (
+                template_code LIKE CONCAT('%', #{keyword}, '%')
+                OR template_name LIKE CONCAT('%', #{keyword}, '%')
+                OR description LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </if>
+        ORDER BY created_at DESC
+    </select>
+
+    <update id="updateStatus">
+        UPDATE template
+        SET status = #{status},
+            updated_by = #{updatedBy}
+        WHERE id = #{id} AND deleted = 0
+    </update>
+
+    <update id="updateFileId">
+        UPDATE template
+        SET file_id = #{fileId},
+            updated_by = #{updatedBy}
+        WHERE id = #{id} AND deleted = 0
+    </update>
+</mapper>
